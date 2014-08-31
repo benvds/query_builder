@@ -32,10 +32,10 @@ module QueryBuilder
     puts ""
   end
 
-  def self.metric(function_name, column_name, as = nil)
+  def self.metric(function_name, column_name, as = "#{function_name}_#{column_name}")
     Sequel::SQL::Function.new(function_name,
         Sequel::SQL::QualifiedIdentifier.new('picks', column_name)).
-      as(as || "#{function_name}_#{column_name}")
+      as(as)
   end
 
   def self.dimension_columns(table_name)
