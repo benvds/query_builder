@@ -40,6 +40,7 @@ module QueryBuilder
 
   def self.dimension_columns(table_name)
     [
+      Sequel::SQL::QualifiedIdentifier.new('picks', 'id').as('total'),
       Sequel::SQL::QualifiedIdentifier.new(table_name, 'id').as('dimension_id'),
       Sequel::SQL::QualifiedIdentifier.new(table_name, 'name').as('dimension_name')
     ]
@@ -94,9 +95,7 @@ module QueryBuilder
   leagues = ReportDataset.new(DB[:picks])
 
   leagues = leagues.
-    select { |o| [
-      o.count(o.picks__id).as('total')
-    ] + dimension_columns('leagues') + metric_columns }.
+    select { |o| dimension_columns('leagues') + metric_columns }.
     apply_dimension('leagues')
 
   print_result_set(leagues)
