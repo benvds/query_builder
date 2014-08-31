@@ -31,14 +31,29 @@ module QueryBuilder
     puts ""
   end
 
-  def self.qualified_column(column_name)
-    table = 'picks'
-    Sequel::SQL::QualifiedIdentifier.new(table, column_name)
+  def self.metric(function_name, column_name)
+    Sequel::SQL::Function.new(function_name,
+        Sequel::SQL::QualifiedIdentifier.new('picks', column_name)).
+      as("#{function_name}_#{column_name}")
   end
 
-  def self.metric(function_name, column_name)
-    Sequel::SQL::Function.new(function_name, qualified_column(column_name)).
-      as("#{function_name}_#{column_name}")
+  def self.dimension_columns(table_name)
+    [
+      Sequel::SQL::QualifiedIdentifier.new(table_name, 'id').as('dimension_id'),
+      Sequel::SQL::QualifiedIdentifier.new(table_name, 'name').as('dimension_name')
+    ]
+  end
+
+  def self.metric_columns
+    [
+      metric('avg', 'odd'),
+      metric('sum', 'stake')
+    ]
+  end
+
+  def self.apply_dimension(dataset, table_name)
+    dataset.join(table_name, id: :league_id).
+      group(Sequel::SQL::QualifiedIdentifier.new(table_name, 'id'))
   end
 
   sports = DB[:picks].
@@ -55,21 +70,13 @@ module QueryBuilder
 
   # print_result_set(sports)
 
-  metrics = [
-    metric('avg', 'odd'),
-    metric('sum', 'stake')
-  ]
 
   leagues = DB[:picks].
     select { |o| [
-      o.count(o.picks__id).as('total'),
-      o.leagues__id.as('dimension_id'),
-      o.leagues__name.as('dimension_name')
-    ] + metrics }.
-    join(:leagues, id: :league_id).
-    group(:leagues__id)
+      o.count(o.picks__id).as('total')
+    ] + dimension_columns('leagues') + metric_columns }
 
-  print_result_set(leagues)
+  print_result_set(apply_dimension(leagues, 'leagues'))
 
   # params = {
   #   dimension: 'sports',
