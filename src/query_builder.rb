@@ -32,15 +32,15 @@ module QueryBuilder
     puts ""
   end
 
-  def self.metric(function_name, column_name)
+  def self.metric(function_name, column_name, as = nil)
     Sequel::SQL::Function.new(function_name,
         Sequel::SQL::QualifiedIdentifier.new('picks', column_name)).
-      as("#{function_name}_#{column_name}")
+      as(as || "#{function_name}_#{column_name}")
   end
 
   def self.dimension_columns(table_name)
     [
-      Sequel::SQL::QualifiedIdentifier.new('picks', 'id').as('total'),
+      metric('count', 'id', 'total'),
       Sequel::SQL::QualifiedIdentifier.new(table_name, 'id').as('dimension_id'),
       Sequel::SQL::QualifiedIdentifier.new(table_name, 'name').as('dimension_name')
     ]
@@ -71,8 +71,20 @@ module QueryBuilder
     end
 
     def apply_dimension(table_name)
-      self.class.new(join(table_name, id: :league_id).
-        group(Sequel::SQL::QualifiedIdentifier.new(table_name, 'id')))
+      self.class.new(self.send("apply_dimension_#{table_name}"))
+    end
+
+    private
+
+    def apply_dimension_sports
+      join(:leagues, id: :league_id).
+      join(:sports, id: :sport_id).
+      group(:sports__id)
+    end
+
+    def apply_dimension_leagues
+      join(:leagues, id: :league_id).
+        group(:leagues__id)
     end
 
   end
@@ -91,10 +103,13 @@ module QueryBuilder
 
   # print_result_set(sports)
 
+  sports = ReportDataset.new(DB[:picks]).
+    select { |o| dimension_columns('sports') + metric_columns }.
+    apply_dimension('sports')
 
-  leagues = ReportDataset.new(DB[:picks])
+  print_result_set(sports)
 
-  leagues = leagues.
+  leagues = ReportDataset.new(DB[:picks]).
     select { |o| dimension_columns('leagues') + metric_columns }.
     apply_dimension('leagues')
 
