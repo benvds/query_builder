@@ -53,16 +53,19 @@ module QueryBuilder
     join(:sports, id: :sport_id).
     group(:sports__id)
 
-  print_result_set(sports)
+  # print_result_set(sports)
+
+  metrics = [
+    metric('avg', 'odd'),
+    metric('sum', 'stake')
+  ]
 
   leagues = DB[:picks].
     select { |o| [
       o.count(o.picks__id).as('total'),
       o.leagues__id.as('dimension_id'),
-      o.leagues__name.as('dimension_name'),
-      metric('avg', 'odd'),
-      metric('sum', 'stake')
-    ]}.
+      o.leagues__name.as('dimension_name')
+    ] + metrics }.
     join(:leagues, id: :league_id).
     group(:leagues__id)
 
