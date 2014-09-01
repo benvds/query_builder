@@ -1,14 +1,14 @@
 require_relative 'dataset'
 
 module QueryBuilder
-  class ReportQuery
+  class Query
     def initialize(params)
       @params = params
       # TODO handle nil & empty values
     end
 
     def dataset
-      ReportDataset.new(DATABASE[:picks]).
+      Dataset.new(DATABASE[:picks]).
         select { |o| dimension_columns(dimension) + metric_columns }.
         apply_dimension(dimension).
         apply_filters(filters_from_params).

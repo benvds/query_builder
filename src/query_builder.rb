@@ -30,6 +30,6 @@ module QueryBuilder
     }
   }
 
-  ReportQuery.new(params).print_debug
+  Query.new(params).print_debug
 
 end

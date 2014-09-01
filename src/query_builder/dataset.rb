@@ -1,7 +1,7 @@
 require 'delegate'
 
 module QueryBuilder
-  class ReportDataset < SimpleDelegator
+  class Dataset < SimpleDelegator
     # wrap query methods with this class again because cloning breaks delegation
     # CLONE_METHODS.each do |method_name|
     Sequel::Dataset::QUERY_METHODS.each do |method_name|
