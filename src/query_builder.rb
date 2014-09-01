@@ -48,8 +48,18 @@ module QueryBuilder
   end
 
   def self.metric_columns_from_params(query_params)
-    query_params['metrics'].map do |metric_param|
-      metric(metric_param['agg'], metric_param['column'])
+    query_params['metrics'].map do |metric_params|
+      metric(metric_params['agg'], metric_params['column'])
+    end
+  end
+
+  def self.filters_from_params(query_params)
+    return [] unless query_params.has_key?('filters')
+
+    query_params.fetch('filters').map do |filter_params|
+      { Sequel::SQL::QualifiedIdentifier.new(filter_params['table'],
+                                             filter_params['column']).
+          sql_string => filter_params['value'] }
     end
   end
 
@@ -66,6 +76,7 @@ module QueryBuilder
       select { |o| dimension_columns(dimension) +
                metric_columns }.
       apply_dimension(dimension).
+      apply_filters(filters_from_params(query_params)).
       order(order_from_params(query_params))
   end
 
@@ -80,7 +91,8 @@ module QueryBuilder
     )
 
     # wrap clone methods with this class again because cloning breaks delegation
-    CLONE_METHODS.each do |method_name|
+    # CLONE_METHODS.each do |method_name|
+    Sequel::Dataset::QUERY_METHODS.each do |method_name|
       define_method(method_name) do |*args, &block|
         self.class.new(__getobj__().send(method_name, *args, &block))
       end
@@ -88,6 +100,14 @@ module QueryBuilder
 
     def apply_dimension(table_name)
       self.send("apply_dimension_#{table_name}")
+    end
+
+    def apply_filters(filters)
+      if filters.any?
+        where{ |o| Sequel.&(*filters) }
+      else
+        self
+      end
     end
 
     private
@@ -105,14 +125,18 @@ module QueryBuilder
 
   end
 
-  # leagues = report_query('leagues')
-  # print_result_set(leagues)
-
   query_params = {
-    'dimension' => 'leagues',
+    'dimension' => 'sports',
     'metrics' => [
       { 'agg' => 'avg', 'column' => 'odd' },
       { 'agg' => 'sum', 'column' => 'stake' }
+    ],
+    'filters' => [
+      {
+        'table' => 'sports',
+        'column' => 'id',
+        'value' => '1' # soccer
+      }
     ],
     'sort' => {
       'column' => 'dimension_name',
@@ -121,7 +145,5 @@ module QueryBuilder
   }
 
   print_result_set(report_query(query_params))
-
-  # TODO filter, dimensions on columns (private yes/no)
 
 end
