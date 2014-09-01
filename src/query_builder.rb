@@ -47,17 +47,26 @@ module QueryBuilder
     ]
   end
 
-  def self.metric_columns
-    [
-      metric('avg', 'odd'),
-      metric('sum', 'stake')
-    ]
+  def self.metric_columns_from_params(query_params)
+    query_params['metrics'].map do |metric_param|
+      metric(metric_param['agg'], metric_param['column'])
+    end
   end
 
-  def self.report_query(dimension)
+  def self.order_from_params(query_params)
+    sort_params = query_params['sort']
+    Sequel.send(sort_params['order'], sort_params['column'])
+  end
+
+  def self.report_query(query_params)
+    dimension = query_params['dimension']
+    metric_columns = metric_columns_from_params(query_params)
+
     ReportDataset.new(DB[:picks]).
-      select { |o| dimension_columns(dimension) + metric_columns }.
-      apply_dimension(dimension)
+      select { |o| dimension_columns(dimension) +
+               metric_columns }.
+      apply_dimension(dimension).
+      order(order_from_params(query_params))
   end
 
   class ReportDataset < SimpleDelegator
@@ -78,7 +87,7 @@ module QueryBuilder
     end
 
     def apply_dimension(table_name)
-      self.class.new(self.send("apply_dimension_#{table_name}"))
+      self.send("apply_dimension_#{table_name}")
     end
 
     private
@@ -96,18 +105,23 @@ module QueryBuilder
 
   end
 
-  sports = report_query('sports')
-  print_result_set(sports)
+  # leagues = report_query('leagues')
+  # print_result_set(leagues)
 
-  leagues = report_query('leagues')
-  print_result_set(leagues)
+  query_params = {
+    'dimension' => 'leagues',
+    'metrics' => [
+      { 'agg' => 'avg', 'column' => 'odd' },
+      { 'agg' => 'sum', 'column' => 'stake' }
+    ],
+    'sort' => {
+      'column' => 'dimension_name',
+      'order' => 'asc'
+    }
+  }
 
-  # params = {
-  #   dimension: 'sports',
-  #   metrics: [
-  #     { agg: 'avg', column: 'odd' },
-  #     { agg: 'sum', column: 'stake' }
-  #   ]
-  # }
+  print_result_set(report_query(query_params))
+
+  # TODO filter, dimensions on columns (private yes/no)
 
 end
