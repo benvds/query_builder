@@ -1,5 +1,5 @@
-module QueryBuilder
-  module SeedDB
+module ReportQueryDB
+  module Seed
     module SeedPicks
 
       MAX_DAYS_AGO = 28

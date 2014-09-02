@@ -1,14 +1,34 @@
 require_relative 'dataset'
 
-module QueryBuilder
+module ReportQuery
   class Query
-    def initialize(params)
+    # params = {
+    #   'dimension' => 'sports',
+    #   'metrics' => [
+    #     { 'agg' => 'avg', 'column' => 'odd' },
+    #     { 'agg' => 'sum', 'column' => 'stake' }
+    #   ],
+    #   'filters' => [
+    #     {
+    #       'table' => 'sports',
+    #       'column' => 'id',
+    #       'value' => '1' # soccer
+    #     }
+    #   ],
+    #   'sort' => {
+    #     'column' => 'dimension_name',
+    #     'order' => 'asc'
+    #   }
+    # }
+    def initialize(database, params)
+      @database = database
       @params = params
       # TODO handle nil & empty values
     end
 
     def dataset
-      Dataset.new(DATABASE[:picks]).
+      ReportQuery::Dataset.new(@database).
+        from(:picks).
         select { |o| dimension_columns(dimension) + metric_columns }.
         apply_dimension(dimension).
         apply_filters(filters_from_params).

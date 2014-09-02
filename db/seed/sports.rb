@@ -1,5 +1,5 @@
-module QueryBuilder
-  module SeedDB
+module ReportQueryDB
+  module Seed
     module SeedSports
 
       def self.run(db)

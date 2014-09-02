@@ -1,15 +1,8 @@
-require 'bundler/setup'
-Bundler.require(:default, :development)
+require_relative 'helpers/db'
+require_relative '../src/report_query'
 
-require 'date'
-
-# TODO this file is more of a spec helper
-
-require_relative 'query_builder/db/db'
-require_relative 'query_builder/query'
-
-module QueryBuilder
-  DATABASE = QueryBuilder::DB.load_db('tmp/query_builder.db')
+module ReportQuerySpec
+  db = DbHelper.load_db('tmp/report_query.db')
 
   params = {
     'dimension' => 'sports',
@@ -30,6 +23,6 @@ module QueryBuilder
     }
   }
 
-  Query.new(params).print_debug
-
+  ReportQuery::Query.new(db, params).print_debug
 end
+
