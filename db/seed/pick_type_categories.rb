@@ -4,8 +4,8 @@ module ReportQueryDB
 
       def self.run(db)
         sports = db[:sports]
-        soccer_id = SeedDB.id_for_name(sports, 'soccer')
-        formula_one_id = SeedDB.id_for_name(sports, 'formula 1')
+        soccer_id = Seed.id_for_name(sports, 'soccer')
+        formula_one_id = Seed.id_for_name(sports, 'formula 1')
 
         ptcs = db[:pick_type_categories]
 

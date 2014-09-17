@@ -4,10 +4,10 @@ module ReportQueryDB
 
       def self.run(db)
         ptcs = db[:pick_type_categories]
-        onextwo_id = SeedDB.id_for_name(ptcs, '1x2')
-        ou_id = SeedDB.id_for_name(ptcs, 'over/under')
-        h2h_id = SeedDB.id_for_name(ptcs, 'h2h')
-        position_id = SeedDB.id_for_name(ptcs, 'position')
+        onextwo_id = Seed.id_for_name(ptcs, '1x2')
+        ou_id = Seed.id_for_name(ptcs, 'over/under')
+        h2h_id = Seed.id_for_name(ptcs, 'h2h')
+        position_id = Seed.id_for_name(ptcs, 'position')
 
         pick_types = db[:pick_types]
 
