@@ -1,6 +1,8 @@
 require_relative 'dataset'
 
 module ReportQuery
+
+  # Constructs a dataset from given params
   class Query
     # params = {
     #   'dimension' => 'sports',

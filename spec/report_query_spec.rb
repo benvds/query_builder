@@ -24,5 +24,7 @@ module ReportQuerySpec
   }
 
   ReportQuery::Query.new(db, params).print_debug
+
+  # puts db[:users].all.inspect
 end
 

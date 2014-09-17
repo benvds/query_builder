@@ -1,3 +1,4 @@
+require_relative 'seed/users_and_relationships'
 require_relative 'seed/sports'
 require_relative 'seed/leagues'
 require_relative 'seed/pick_type_categories'
@@ -12,6 +13,7 @@ module ReportQueryDB
     end
 
     def self.run(db)
+      ReportQueryDB::Seed::SeedUsersAndRelationships.run(db)
       ReportQueryDB::Seed::SeedSports.run(db)
       ReportQueryDB::Seed::SeedLeagues.run(db)
       ReportQueryDB::Seed::SeedPickTypeCategories.run(db)

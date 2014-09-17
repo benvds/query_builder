@@ -3,7 +3,6 @@ require 'delegate'
 module ReportQuery
   class Dataset < SimpleDelegator
     # wrap query methods with this class again because cloning breaks delegation
-    # CLONE_METHODS.each do |method_name|
     Sequel::Dataset::QUERY_METHODS.each do |method_name|
       define_method(method_name) do |*args, &block|
         self.class.new(__getobj__().send(method_name, *args, &block))

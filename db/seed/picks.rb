@@ -11,6 +11,7 @@ module ReportQueryDB
       def self.run(db)
 
         picks = db[:picks]
+        user_id = db[:users].first(username: 'FollowedByTwo').fetch(:id)
 
         db[:sports].each do |sport|
           db[:leagues].where(sport_id: sport[:id]).each do |league|
@@ -19,7 +20,8 @@ module ReportQueryDB
               where(pick_type_categories__sport_id: sport[:id]).each do |pick_type|
 
               uid = "#{sport[:id]}-#{league[:id]}-#{pick_type[:id]}"
-              picks.insert  league_id: league[:id],
+              picks.insert  user_id: user_id,
+                            league_id: league[:id],
                             pick_type_id: pick_type[:id],
                             match: "match: #{uid}",
                             pick: "pick: #{uid}",
