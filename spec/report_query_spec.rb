@@ -52,5 +52,52 @@ module ReportQuerySpec
       row.has_key?(:avg_stake_return).must_equal true
       row.has_key?(:sum_balance).must_equal true
     end
+
+    it "returns all dimension columns" do
+      params = {
+        'dimension' => 'sports',
+        'metrics' => [
+          { 'agg' => 'sum', 'column' => 'balance' }
+        ]
+      }
+
+      result = ReportQuery::Query.new(db, params).dataset
+      row = result.first
+
+      row.has_key?(:total).must_equal true
+      row.has_key?(:dimension_id).must_equal true
+      row.has_key?(:dimension_name).must_equal true
+    end
+
+    it "accepts the sports dimension" do
+      params = {
+        'dimension' => 'sports',
+        'metrics' => [
+          { 'agg' => 'sum', 'column' => 'stake' }
+        ]
+      }
+
+      result = ReportQuery::Query.new(db, params).dataset.all
+      names = result.collect { |row| row.fetch(:dimension_name) }
+
+      result.size.must_equal 2
+      names.must_include 'soccer'
+      names.must_include 'formula 1'
+    end
+
+    it "accepts the leagues dimension" do
+      params = {
+        'dimension' => 'leagues',
+        'metrics' => [
+          { 'agg' => 'sum', 'column' => 'stake' }
+        ]
+      }
+
+      result = ReportQuery::Query.new(db, params).dataset.all
+      names = result.collect { |row| row.fetch(:dimension_name) }
+
+      result.size.must_equal 4
+      names.must_equal ['eredivisie', 'jupiler league', 'qualification', 'race']
+    end
   end
 end
