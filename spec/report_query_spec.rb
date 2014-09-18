@@ -12,9 +12,8 @@ module ReportQuerySpec
     ],
     'filters' => [
       {
-        'table' => 'sports',
-        'column' => 'id',
-        'value' => '1' # soccer
+        'name' => 'sports',
+        'expression' => '1' # soccer
       }
     ],
     'sort' => {

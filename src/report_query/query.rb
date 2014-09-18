@@ -4,6 +4,10 @@ module ReportQuery
 
   # Constructs a dataset from given params
   class Query
+    # METRICS = %W(odd stake)
+    # DIMENSIONS = %W(sports leagues pick_type_categories pick_types users)
+    SCOPES = %W(public followeds)
+
     # params = {
     #   'dimension' => 'sports',
     #   'metrics' => [
@@ -12,11 +16,19 @@ module ReportQuery
     #   ],
     #   'filters' => [
     #     {
-    #       'table' => 'sports',
-    #       'column' => 'id',
-    #       'value' => '1' # soccer
+    #       'name' => 'sports',
+    #       'operator' => '==',                     # always == for now
+    #       'expression' => '1'
     #     }
     #   ],
+    #   'segment' => {
+    #     'scope' => 'followeds',
+    #     'condition' => {
+    #       'name' => 'follower',
+    #       'operator' => '==',                     # always == for now
+    #       'expression' => '1'
+    #     }
+    #   }
     #   'sort' => {
     #     'column' => 'dimension_name',
     #     'order' => 'asc'
@@ -25,7 +37,6 @@ module ReportQuery
     def initialize(database, params)
       @database = database
       @params = params
-      # TODO handle nil & empty values
     end
 
     def dataset
@@ -83,9 +94,8 @@ module ReportQuery
       return [] unless params.has_key?('filters')
 
       params.fetch('filters').map do |filter_params|
-        { Sequel::SQL::QualifiedIdentifier.new(filter_params['table'],
-                                               filter_params['column']).
-            sql_string => filter_params['value'] }
+        { Sequel::SQL::QualifiedIdentifier.new(filter_params['name'], 'id').
+            sql_string => filter_params['expression'] }
       end
     end
 
