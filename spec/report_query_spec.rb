@@ -16,6 +16,13 @@ module ReportQuerySpec
         'expression' => '1' # soccer
       }
     ],
+    'segment' => {
+      'scope' => 'followeds',
+      'condition' => {
+        'name' => 'follower',
+        'expression' => '1'
+      }
+    },
     'sort' => {
       'column' => 'dimension_name',
       'order' => 'asc'
@@ -23,7 +30,4 @@ module ReportQuerySpec
   }
 
   ReportQuery::Query.new(db, params).print_debug
-
-  # puts db[:users].all.inspect
 end
-

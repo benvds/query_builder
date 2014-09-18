@@ -9,6 +9,12 @@ module ReportQuery
       end
     end
 
+    def apply_segment(segment)
+      scope = segment.fetch('scope')
+      condition = segment.fetch('condition')
+      self.send("apply_segment_#{scope}", condition)
+    end
+
     def apply_dimension(table_name)
       self.send("apply_dimension_#{table_name}")
     end
@@ -22,6 +28,16 @@ module ReportQuery
     end
 
     private
+
+    def apply_segment_public(condition)
+      self
+    end
+
+    def apply_segment_followeds(condition)
+      join(:relationships, { followed_id: :picks__user_id }).
+        where(relationships__follower_id: condition.fetch('expression')).
+      join(:users, id: :followed_id)
+    end
 
     def apply_dimension_sports
       join(:leagues, id: :league_id).

@@ -21,7 +21,7 @@ module ReportQuery
     #       'expression' => '1'
     #     }
     #   ],
-    #   'segment' => {
+    #   'segment' => {                              # required
     #     'scope' => 'followeds',
     #     'condition' => {
     #       'name' => 'follower',
@@ -44,6 +44,7 @@ module ReportQuery
         from(:picks).
         select { |o| dimension_columns(dimension) + metric_columns }.
         apply_dimension(dimension).
+        apply_segment(segment).
         apply_filters(filters_from_params).
         order(order_from_params)
     end
@@ -70,6 +71,10 @@ module ReportQuery
       Sequel::SQL::Function.new(function_name,
           Sequel::SQL::QualifiedIdentifier.new('picks', column_name)).
         as(as)
+    end
+
+    def segment
+      params.fetch('segment')
     end
 
     def dimension
