@@ -74,7 +74,7 @@ module ReportQuery
     end
 
     def segment
-      params.fetch('segment')
+      params['segment'] || { 'scope' => 'public' }
     end
 
     def dimension
@@ -105,8 +105,12 @@ module ReportQuery
     end
 
     def order_from_params
-      sort_params = params.fetch('sort')
-      Sequel.send(sort_params['order'], sort_params['column'])
+      sort_params = params['sort']
+      unless sort_params.nil?
+        Sequel.send(sort_params['order'], sort_params['column'])
+      else
+        nil
+      end
     end
   end
 end

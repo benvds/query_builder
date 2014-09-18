@@ -11,7 +11,7 @@ module ReportQuery
 
     def apply_segment(segment)
       scope = segment.fetch('scope')
-      condition = segment.fetch('condition')
+      condition = segment['condition']
       self.send("apply_segment_#{scope}", condition)
     end
 
